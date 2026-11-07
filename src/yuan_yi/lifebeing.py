@@ -14,6 +14,8 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from .awareness import Awareness
+from .creation import CreationEngine
+from .defense import Defense
 from .evolution import EvolutionEngine
 from .loop import make_default_loop, SimpleCorrector
 from .memory import LayeredMemory
@@ -33,6 +35,8 @@ class YuanYi:
         self.memory = LayeredMemory()
         self.evolution = EvolutionEngine()
         self.reasoner = Reasoner()
+        self.defense = Defense()        # 六层防御（心智层以自身目标为核心价值锚）
+        self.creation = CreationEngine()
         self.step_size = 1.0            # 当前代际的执行基因
         self.generations: List[Dict] = []
 
@@ -73,6 +77,12 @@ class YuanYi:
         if weighted_targets:
             return self.reasoner.spiral_fuse(current, weighted_targets)
         return self.reasoner.think(current, self.target)
+
+    def create(self, top_k: int = 3) -> Dict:
+        """文明创造：从自身思维晶体识别知识空白 + 归纳理论命题。"""
+        crystals = list(self.memory.long.values())
+        return {"空白": self.creation.find_gaps(crystals, top_k),
+                "理论": self.creation.induce(crystals)}
 
     def self_report(self) -> Dict:
         """自我陈述：觉知画像 + 记忆统计 + 进化代际。"""

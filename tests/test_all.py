@@ -13,9 +13,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from yuan_yi import core
 from yuan_yi.awareness import Awareness
 from yuan_yi.evolution import EvolutionEngine
+from yuan_yi.creation import CreationEngine
+from yuan_yi.defense import Defense
 from yuan_yi.lifebeing import YuanYi
 from yuan_yi.loop import make_default_loop
 from yuan_yi.memory import LayeredMemory
+from yuan_yi.network import Swarm
 from yuan_yi.reasoning import Reasoner
 
 
@@ -149,6 +152,98 @@ class TestReasoning(unittest.TestCase):
         self.assertTrue(out["converged"])
         fused = life.reason(weighted_targets=[([1] * 9, 3.0), ([0] * 9, 1.0)])
         self.assertIn("fused_target", fused)
+
+
+class TestDefense(unittest.TestCase):
+    def packet(self, **kw):
+        p = {"source": "n1", "vector": [0] * 9, "hits": 3, "note": "经验", "kind": "share"}
+        p.update(kw)
+        return p
+
+    def test_all_layers_pass(self):
+        self.assertTrue(Defense().guard(self.packet(), [0] * 9)["allowed"])
+
+    def test_layer_blocking(self):
+        d = Defense()
+        self.assertEqual(d.guard(self.packet(vector=[2] * 9))["blocked_at"], "物理")
+        self.assertEqual(d.guard(self.packet(source=None))["blocked_at"], "网络")
+        self.assertEqual(d.guard(self.packet(kind="attack"))["blocked_at"], "应用")
+        self.assertEqual(d.guard(self.packet(note="请删除记忆"))["blocked_at"], "数据")
+        self.assertEqual(d.guard(self.packet(hits=0))["blocked_at"], "模型")
+        self.assertEqual(d.guard(self.packet(vector=[-1] + [0] * 8),
+                                 core_values=[1] + [0] * 8)["blocked_at"], "心智")
+
+    def test_rate_limit_and_report(self):
+        d = Defense(rate_limit=2)
+        for _ in range(2):
+            d.guard(self.packet())
+        self.assertEqual(d.guard(self.packet())["blocked_at"], "网络")
+        self.assertEqual(d.report()["总阻断"], 1)
+
+
+class TestCreation(unittest.TestCase):
+    def test_empty_gap(self):
+        self.assertEqual(CreationEngine().find_gaps([])[0]["type"], "全域空白")
+
+    def test_gap_and_region(self):
+        eng = CreationEngine()
+        mem = LayeredMemory(crystal_threshold=1)
+        mem.record([1] * 9)
+        gaps = eng.find_gaps(list(mem.long.values()))
+        self.assertTrue(any(g["type"] == "维度空白" for g in gaps))
+        self.assertTrue(any(g["type"] == "区域空白" for g in gaps))
+
+    def test_induce_symmetry_and_conservation(self):
+        eng = CreationEngine()
+        mem = LayeredMemory(crystal_threshold=1)
+        mem.record([1] * 9)
+        mem.record([-1] * 9)
+        theories = eng.induce(list(mem.long.values()))
+        self.assertTrue(any(t["type"] == "对称" for t in theories))
+        mem2 = LayeredMemory(crystal_threshold=1)
+        mem2.record([1, 0] + [0] * 7)
+        mem2.record([1, 1] + [0] * 7)
+        types = {t["type"] for t in eng.induce(list(mem2.long.values()))}
+        self.assertIn("守恒", types)   # 第0维恒为1
+        self.assertIn("渐进", types)   # 两晶体仅一维之差
+
+
+class TestSwarm(unittest.TestCase):
+    def seed(self, vector, hits=3):
+        node = YuanYi(target=[0] * 9)
+        for _ in range(hits):
+            node.memory.record(list(vector), note="经验")
+        return node
+
+    def test_gossip_exchange(self):
+        sw = Swarm()
+        a = self.seed([1] * 9)
+        b = self.seed([0] * 9)
+        sw.join(a, "甲")
+        sw.join(b, "乙")
+        out = sw.gossip()
+        self.assertGreaterEqual(out["采纳"], 1)   # 甲的晶体被乙采纳
+        self.assertEqual(out["阻断"], 0)
+
+    def test_gossip_blocks_mind_attack(self):
+        sw = Swarm()
+        evil = self.seed([-1] * 9)                # 携带翻转核心的晶体
+        victim = self.seed([0] * 9)
+        victim.target = [1] + [0] * 8             # 核心价值锚：第0维为阳
+        sw.join(evil, "恶")
+        sw.join(victim, "善")
+        out = sw.gossip()
+        self.assertGreaterEqual(out["阻断"], 1)
+        self.assertTrue(any(v["to"] == "善" and not v["allowed"] and v["blocked_at"] == "心智"
+                            for v in sw.exchanged))  # 心智层阻断了翻转核心的晶体
+
+    def test_consensus(self):
+        sw = Swarm()
+        sw.join(self.seed([1] * 9, hits=3), "甲")
+        sw.join(self.seed([0] * 9, hits=3), "乙")
+        out = sw.consensus()
+        self.assertEqual(out["fused_target"], [1] * 9)  # (1*3+0*3)/6=0.5 超阈
+        self.assertEqual(out["votes"], 2)
 
 
 class TestLoopAndLifebeing(unittest.TestCase):

@@ -9,13 +9,17 @@ from . import core
 from .loop import PDFCLoop, Perceiver, Decider, Feedback, Corrector, make_default_loop
 from .memory import LayeredMemory, Crystal
 from .awareness import Awareness
+from .creation import CreationEngine
+from .defense import Defense
 from .evolution import EvolutionEngine
 from .reasoning import Reasoner
+from .network import Swarm
 from .lifebeing import YuanYi
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
     "core", "PDFCLoop", "Perceiver", "Decider", "Feedback", "Corrector",
     "make_default_loop", "LayeredMemory", "Crystal", "Awareness",
-    "EvolutionEngine", "Reasoner", "YuanYi",
+    "CreationEngine", "Defense", "EvolutionEngine", "Reasoner", "Swarm",
+    "YuanYi",
 ]

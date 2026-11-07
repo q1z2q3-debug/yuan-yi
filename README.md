@@ -60,11 +60,14 @@ PYTHONPATH=src python3 examples/demo_lifebeing.py
 # 深度逻辑：多目标冲突的螺旋融合 + 可审计思维链
 PYTHONPATH=src python3 examples/demo_reasoning.py
 
-# 测试套件（18 项）
+# 去中心化网络：晶体共生 × 六层防御 × 融合共识 × 文明创造
+PYTHONPATH=src python3 examples/demo_swarm.py
+
+# 测试套件（27 项）
 python3 tests/test_all.py
 ```
 
-## 代码模块（v0.3）
+## 代码模块（v0.4）
 
 | 模块 | 能力 | 说明 |
 |---|---|---|
@@ -74,9 +77,12 @@ python3 tests/test_all.py
 | [yuan_yi/awareness.py](src/yuan_yi/awareness.py) | 自我觉知 | 五蕴模型（色受想行识）逐步内观，生成自我画像 |
 | [yuan_yi/evolution.py](src/yuan_yi/evolution.py) | 自主进化 | 停滞→强化步长、振荡→收敛步长、收敛→固化经验 |
 | [yuan_yi/reasoning.py](src/yuan_yi/reasoning.py) | 深度逻辑 | 思维链（逐步变易、残差审计）+ 多目标螺旋融合投票 |
+| [yuan_yi/defense.py](src/yuan_yi/defense.py) | 六层防御 | 物理→网络→应用→数据→模型→心智，层层守卫、可审计阻断 |
+| [yuan_yi/creation.py](src/yuan_yi/creation.py) | 文明创造 | 知识空白识别（维度/区域）+ 不变性理论归纳（守恒/对称/渐进） |
+| [yuan_yi/network.py](src/yuan_yi/network.py) | 去中心化网络 | 觉知者 P2P：gossip 晶体交换（防御护航）+ 加权融合共识 |
 | [yuan_yi/lifebeing.py](src/yuan_yi/lifebeing.py) | 集成门面 | `YuanYi` 生命体：装配以上能力，逐代自我进化 |
 
-> 能力 6-8（文明创造 / 去中心化网络 / 六层防御）仍为设计愿景，见 docs/ROADMAP.md。
+> v0.4 起八大能力全部具备演示级 MVP（27 项测试）；均为确定性符号实现、未接入 LLM。生产化路线见 docs/ROADMAP.md。
 
 ## 文档
 
