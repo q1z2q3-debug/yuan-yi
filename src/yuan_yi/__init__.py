@@ -10,11 +10,12 @@ from .loop import PDFCLoop, Perceiver, Decider, Feedback, Corrector, make_defaul
 from .memory import LayeredMemory, Crystal
 from .awareness import Awareness
 from .evolution import EvolutionEngine
+from .reasoning import Reasoner
 from .lifebeing import YuanYi
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     "core", "PDFCLoop", "Perceiver", "Decider", "Feedback", "Corrector",
     "make_default_loop", "LayeredMemory", "Crystal", "Awareness",
-    "EvolutionEngine", "YuanYi",
+    "EvolutionEngine", "Reasoner", "YuanYi",
 ]

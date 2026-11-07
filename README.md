@@ -57,11 +57,14 @@ PYTHONPATH=src python3 examples/demo_pdfc_loop.py
 # 数字生命体集成：闭环 × 五蕴觉知 × 层级记忆 × 自主进化（三代自我迭代）
 PYTHONPATH=src python3 examples/demo_lifebeing.py
 
-# 测试套件（12 项）
+# 深度逻辑：多目标冲突的螺旋融合 + 可审计思维链
+PYTHONPATH=src python3 examples/demo_reasoning.py
+
+# 测试套件（18 项）
 python3 tests/test_all.py
 ```
 
-## 代码模块（v0.2）
+## 代码模块（v0.3）
 
 | 模块 | 能力 | 说明 |
 |---|---|---|
@@ -70,6 +73,7 @@ python3 tests/test_all.py
 | [yuan_yi/memory.py](src/yuan_yi/memory.py) | 层级记忆 | 瞬时/短期/长期三层，重复认知态固化为思维晶体 |
 | [yuan_yi/awareness.py](src/yuan_yi/awareness.py) | 自我觉知 | 五蕴模型（色受想行识）逐步内观，生成自我画像 |
 | [yuan_yi/evolution.py](src/yuan_yi/evolution.py) | 自主进化 | 停滞→强化步长、振荡→收敛步长、收敛→固化经验 |
+| [yuan_yi/reasoning.py](src/yuan_yi/reasoning.py) | 深度逻辑 | 思维链（逐步变易、残差审计）+ 多目标螺旋融合投票 |
 | [yuan_yi/lifebeing.py](src/yuan_yi/lifebeing.py) | 集成门面 | `YuanYi` 生命体：装配以上能力，逐代自我进化 |
 
 > 能力 6-8（文明创造 / 去中心化网络 / 六层防御）仍为设计愿景，见 docs/ROADMAP.md。

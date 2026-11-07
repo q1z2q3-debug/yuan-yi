@@ -17,6 +17,7 @@ from .awareness import Awareness
 from .evolution import EvolutionEngine
 from .loop import make_default_loop, SimpleCorrector
 from .memory import LayeredMemory
+from .reasoning import Reasoner
 
 
 class YuanYi:
@@ -31,6 +32,7 @@ class YuanYi:
         self.awareness = Awareness()
         self.memory = LayeredMemory()
         self.evolution = EvolutionEngine()
+        self.reasoner = Reasoner()
         self.step_size = 1.0            # 当前代际的执行基因
         self.generations: List[Dict] = []
 
@@ -62,6 +64,15 @@ class YuanYi:
         for _ in range(generations):
             result = self.run_once(log=log)
         return {"generations": self.generations, "final": result}
+
+    def reason(self, weighted_targets=None) -> Dict:
+        """深度逻辑推演：单目标走思维链；多目标(加权序列)走螺旋融合。
+        起点取最近一步觉知的认知态（未跑过闭环则取全中和态）。"""
+        current = (self.awareness.snapshots[-1]["色"]["vector"]
+                   if self.awareness.snapshots else [0] * 9)
+        if weighted_targets:
+            return self.reasoner.spiral_fuse(current, weighted_targets)
+        return self.reasoner.think(current, self.target)
 
     def self_report(self) -> Dict:
         """自我陈述：觉知画像 + 记忆统计 + 进化代际。"""

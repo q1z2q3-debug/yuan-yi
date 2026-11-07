@@ -16,6 +16,7 @@ from yuan_yi.evolution import EvolutionEngine
 from yuan_yi.lifebeing import YuanYi
 from yuan_yi.loop import make_default_loop
 from yuan_yi.memory import LayeredMemory
+from yuan_yi.reasoning import Reasoner
 
 
 class TestCore(unittest.TestCase):
@@ -105,6 +106,49 @@ class TestEvolution(unittest.TestCase):
         gen = ev.evolve(hist, step_size=2.0, converged=False)
         self.assertEqual(gen["diagnosis"], "振荡")
         self.assertLess(gen["step_size"], 2.0)
+
+
+class TestReasoning(unittest.TestCase):
+    def test_think_chain_converges(self):
+        r = Reasoner()
+        out = r.think([-1] * 9, [1] * 9)
+        self.assertTrue(out["converged"])
+        self.assertEqual(out["depth"], 18)  # 纯阴→纯阳：2步/维 × 9维
+        self.assertTrue(out["audit"]["monotonic"])
+
+    def test_think_already_at_target(self):
+        r = Reasoner()
+        out = r.think([0] * 9, [0] * 9)
+        self.assertTrue(out["converged"])
+        self.assertEqual(out["depth"], 0)
+
+    def test_squared_residual_decreases_per_step(self):
+        r = Reasoner()
+        out = r.think([0] * 9, [1] * 9)
+        res = out["audit"]["residuals"]
+        for a, b in zip(res, res[1:]):
+            self.assertAlmostEqual(a * a - b * b, 1.0)  # 变易算子每步平方残差恰减 1
+
+    def test_fuse_targets_voting(self):
+        # 权重 2:1 对冲 → 均值 1/3 未超阈 → 持"变"(0)
+        self.assertEqual(Reasoner.fuse_targets([([1] * 9, 2.0), ([-1] * 9, 1.0)]), [0] * 9)
+        # 权重 3:1 → 均值 0.5 超阈 → 共识为阳
+        self.assertEqual(Reasoner.fuse_targets([([1] * 9, 3.0), ([-1] * 9, 1.0)]), [1] * 9)
+
+    def test_spiral_fuse(self):
+        r = Reasoner()
+        out = r.spiral_fuse([0] * 9, [([1] * 9, 3.0), ([-1] * 9, 1.0)])
+        self.assertEqual(out["fused_target"], [1] * 9)
+        self.assertTrue(out["converged"])
+        self.assertEqual(len(out["votes"]), 2)
+
+    def test_lifebeing_reason(self):
+        life = YuanYi(target=[0] * 9, max_steps=14)
+        life.run_once()
+        out = life.reason()  # 闭环已收敛至目标 → 链长 0
+        self.assertTrue(out["converged"])
+        fused = life.reason(weighted_targets=[([1] * 9, 3.0), ([0] * 9, 1.0)])
+        self.assertIn("fused_target", fused)
 
 
 class TestLoopAndLifebeing(unittest.TestCase):
