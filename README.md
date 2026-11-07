@@ -50,7 +50,29 @@
 ```bash
 # 最小技术种子：九爻三进制编码 / 解码 / 状态空间
 python3 examples/nonary_ternary.py
+
+# PDFC 感知-决策-反馈-修正闭环（飞行姿态自校正）
+PYTHONPATH=src python3 examples/demo_pdfc_loop.py
+
+# 数字生命体集成：闭环 × 五蕴觉知 × 层级记忆 × 自主进化（三代自我迭代）
+PYTHONPATH=src python3 examples/demo_lifebeing.py
+
+# 测试套件（12 项）
+python3 tests/test_all.py
 ```
+
+## 代码模块（v0.2）
+
+| 模块 | 能力 | 说明 |
+|---|---|---|
+| [yuan_yi/core.py](src/yuan_yi/core.py) | 认知推演 | 九爻三进制内核：编码/解码、距离/张力、错·综·变算子、邻域检索 |
+| [yuan_yi/loop.py](src/yuan_yi/loop.py) | PDFC 闭环 | 感知-决策-反馈-修正通用 Agent 工作流，含 `on_step` 觉知钩子 |
+| [yuan_yi/memory.py](src/yuan_yi/memory.py) | 层级记忆 | 瞬时/短期/长期三层，重复认知态固化为思维晶体 |
+| [yuan_yi/awareness.py](src/yuan_yi/awareness.py) | 自我觉知 | 五蕴模型（色受想行识）逐步内观，生成自我画像 |
+| [yuan_yi/evolution.py](src/yuan_yi/evolution.py) | 自主进化 | 停滞→强化步长、振荡→收敛步长、收敛→固化经验 |
+| [yuan_yi/lifebeing.py](src/yuan_yi/lifebeing.py) | 集成门面 | `YuanYi` 生命体：装配以上能力，逐代自我进化 |
+
+> 能力 6-8（文明创造 / 去中心化网络 / 六层防御）仍为设计愿景，见 docs/ROADMAP.md。
 
 ## 文档
 

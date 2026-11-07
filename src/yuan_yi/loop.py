@@ -17,7 +17,9 @@
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
+
+from .core import distance as tri_distance, tension as tri_tension
 
 
 class Perceiver(ABC):
@@ -58,7 +60,8 @@ class PDFCLoop:
     def __init__(self, perceiver: Perceiver, decider: Decider,
                  feedback: Feedback, corrector: Corrector,
                  target: List[int], max_steps: int = 20,
-                 tolerance: float = 0.5, log: bool = True):
+                 tolerance: float = 0.5, log: bool = True,
+                 on_step: Optional[Callable[[Dict], None]] = None):
         self.perceiver = perceiver
         self.decider = decider
         self.feedback = feedback
@@ -67,6 +70,7 @@ class PDFCLoop:
         self.max_steps = max_steps
         self.tolerance = tolerance
         self.log = log
+        self.on_step = on_step  # 觉知钩子：每步记录回调（觉知/记忆等生命层订阅）
 
     def run(self, env: Any) -> Dict[str, Any]:
         """迭代闭环直至收敛(偏差<容差)或达最大步数。"""
@@ -81,6 +85,8 @@ class PDFCLoop:
             record = {"step": step, "vector": state.get("vector"),
                       "gap": decision.get("gap"), "instruction": instruction}
             history.append(record)
+            if self.on_step is not None:
+                self.on_step(record)
             if self.log:
                 gap = decision.get("gap", float("inf"))
                 mark = "✓收敛" if gap <= self.tolerance else ""
@@ -125,7 +131,7 @@ class TriDecider(Decider):
         self.power_base = power_base
 
     def distance(self, a: List[int], b: List[int]) -> float:
-        return (sum((x - y) ** 2 for x, y in zip(a, b))) ** 0.5
+        return tri_distance(a, b)
 
     def decide(self, state: Dict[str, Any], target: List[int]) -> Dict[str, Any]:
         v = state.get("vector", [])
@@ -133,7 +139,8 @@ class TriDecider(Decider):
         tensions = []
         if gap > self.tolerance:
             tensions.append({"type": "deviation", "strength": min(1.0, gap / 6.0),
-                             "note": f"当前态偏离目标 {gap:.2f}"})
+                             "note": f"当前态偏离目标 {gap:.2f}",
+                             "detail": tri_tension(v, target)})
         correction = self._make_correction(v, target, gap)
         power = self.power_base + min(0.5, gap / 6.0)
         return {"gap": gap, "tensions": tensions,
